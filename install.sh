@@ -111,10 +111,22 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARBALL_PATH="${SCRIPT_DIR}/${TARBALL}"
 
+# Also check /tmp/ and current directory as fallback
 if [[ ! -f "$TARBALL_PATH" ]]; then
-    error "Tarball not found: $TARBALL_PATH"
-    error "Make sure '${TARBALL}' is in the same directory as this script."
-    exit 1
+    if [[ -f "/tmp/${TARBALL}" ]]; then
+        TARBALL_PATH="/tmp/${TARBALL}"
+    elif [[ -f "./${TARBALL}" ]]; then
+        TARBALL_PATH="$(pwd)/${TARBALL}"
+    else
+        error "Tarball not found. Searched:"
+        error "  - ${SCRIPT_DIR}/${TARBALL}"
+        error "  - /tmp/${TARBALL}"
+        error "  - $(pwd)/${TARBALL}"
+        error ""
+        error "Download it first:"
+        error "  curl -sL https://github.com/dolutech/nfguard-cli/releases/download/v0.1.0/${TARBALL} -o /tmp/${TARBALL}"
+        exit 1
+    fi
 fi
 
 info "Found tarball: $TARBALL_PATH"
