@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 # NFGuard v0.1.0 — Installation Script
-# Usage: sudo bash install.sh
+# Usage: curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh | sudo bash
 #
-# Installs NFGuard to /opt/nfguard/ and creates a symlink at /usr/local/bin/nfguard.
+# Downloads, installs NFGuard to /opt/nfguard/, and creates a symlink at /usr/local/bin/nfguard.
 # Creates default configuration in ~/.nfguard/ for the invoking user.
 
 set -euo pipefail
 
 VERSION="0.1.0"
 TARBALL="nfguard-${VERSION}-linux-amd64.tar.gz"
+DOWNLOAD_URL="https://github.com/dolutech/nfguard-cli/releases/download/v${VERSION}/${TARBALL}"
 INSTALL_DIR="/opt/nfguard"
 SYMLINK="/usr/local/bin/nfguard"
+TMP_TARBALL="/tmp/${TARBALL}"
 
 # Colors
 RED='\033[0;31m'
@@ -29,14 +31,15 @@ show_help() {
 NFGuard v${VERSION} — Installation Script
 
 Usage:
-    sudo bash install.sh          Install NFGuard
-    bash install.sh --help        Show this help
-    sudo bash install.sh --uninstall  Remove NFGuard
+    curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh | sudo bash
+    sudo bash install.sh                Install NFGuard
+    bash install.sh --help              Show this help
+    sudo bash install.sh --uninstall    Remove NFGuard
 
 Requirements:
     - Linux x86_64 (amd64)
     - Root/sudo access
-    - Tarball '${TARBALL}' in the same directory as this script
+    - curl (for downloading the release)
 EOF
     exit 0
 }
@@ -94,7 +97,7 @@ info "Detected: Linux $ARCH"
 # --- Root check ---
 if [[ $EUID -ne 0 ]]; then
     error "This installer requires root privileges."
-    error "Run with: sudo bash install.sh"
+    error "Run with: curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh | sudo bash"
     exit 1
 fi
 
@@ -107,34 +110,31 @@ if [[ -z "$REAL_HOME" ]]; then
     exit 1
 fi
 
-# --- Locate tarball ---
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARBALL_PATH="${SCRIPT_DIR}/${TARBALL}"
-
-# Also check /tmp/ (versioned and generic names) and current directory as fallback
-if [[ ! -f "$TARBALL_PATH" ]]; then
-    if [[ -f "/tmp/${TARBALL}" ]]; then
-        TARBALL_PATH="/tmp/${TARBALL}"
-    elif [[ -f "/tmp/nfguard.tar.gz" ]]; then
-        TARBALL_PATH="/tmp/nfguard.tar.gz"
-    elif [[ -f "./${TARBALL}" ]]; then
-        TARBALL_PATH="$(pwd)/${TARBALL}"
-    elif [[ -f "./nfguard.tar.gz" ]]; then
-        TARBALL_PATH="$(pwd)/nfguard.tar.gz"
-    else
-        error "Tarball not found. Searched:"
-        error "  - ${SCRIPT_DIR}/${TARBALL}"
-        error "  - /tmp/${TARBALL}"
-        error "  - /tmp/nfguard.tar.gz"
-        error "  - $(pwd)/${TARBALL}"
-        error ""
-        error "Download it first:"
-        error "  curl -sL https://github.com/dolutech/nfguard-cli/releases/download/v0.1.0/${TARBALL} -o /tmp/${TARBALL}"
-        exit 1
-    fi
+# --- Check for curl ---
+if ! command -v curl &>/dev/null; then
+    error "curl is required but not installed."
+    error "Install it with: sudo pacman -S curl  (Arch) / sudo apt install curl  (Debian/Ubuntu)"
+    exit 1
 fi
 
-info "Found tarball: $TARBALL_PATH"
+# --- Download tarball ---
+info "Downloading NFGuard v${VERSION} ..."
+if curl -fSL "$DOWNLOAD_URL" -o "$TMP_TARBALL" 2>&1; then
+    ok "Downloaded ${TARBALL}"
+else
+    error "Failed to download from: $DOWNLOAD_URL"
+    error "Check your internet connection or try again later."
+    rm -f "$TMP_TARBALL"
+    exit 1
+fi
+
+# Verify the download is a valid gzip file
+if ! file "$TMP_TARBALL" | grep -q "gzip"; then
+    error "Downloaded file is not a valid tarball (possibly a 404 page)."
+    error "URL: $DOWNLOAD_URL"
+    rm -f "$TMP_TARBALL"
+    exit 1
+fi
 
 # --- Install ---
 info "Installing NFGuard to $INSTALL_DIR ..."
@@ -147,8 +147,11 @@ fi
 
 # Extract
 mkdir -p "$INSTALL_DIR"
-tar xzf "$TARBALL_PATH" -C /opt/
+tar xzf "$TMP_TARBALL" -C /opt/
 ok "Extracted to $INSTALL_DIR"
+
+# Clean up downloaded tarball
+rm -f "$TMP_TARBALL"
 
 # Set permissions on the main executable
 chmod +x "${INSTALL_DIR}/nfguard"
@@ -242,5 +245,5 @@ echo "  2. Run: nfguard"
 echo "  3. The setup wizard will guide you through initial configuration"
 echo ""
 echo -e "${CYAN}Uninstall:${NC}"
-echo "  sudo bash install.sh --uninstall"
+echo "  curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh | sudo bash -s -- --uninstall"
 echo ""
