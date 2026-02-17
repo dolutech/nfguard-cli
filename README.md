@@ -24,18 +24,9 @@ NFGuard is a security CLI that uses a **multi-agent AI architecture** to orchest
 
 All tools are **bundled as pre-compiled binaries** — no manual installation of individual tools required.
 
-```
-$ nfguard
-NFGuard v0.1.0 — Security CLI
-
-nfguard> Run a full recon on example.com
-[Orchestrator] Delegating to ReconAgent...
-[Recon] Running whois lookup...
-[Recon] Enumerating subdomains with subfinder...
-[Recon] Scanning ports with naabu...
-[Recon] Probing HTTP services with httpx...
-✓ Recon complete — 12 subdomains, 47 open ports found
-```
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dolutech/nfguard-cli/main/assets/nfguard-cli-print.png" alt="NFGuard CLI Demo" width="600">
+</p>
 
 ---
 
