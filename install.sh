@@ -111,16 +111,21 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARBALL_PATH="${SCRIPT_DIR}/${TARBALL}"
 
-# Also check /tmp/ and current directory as fallback
+# Also check /tmp/ (versioned and generic names) and current directory as fallback
 if [[ ! -f "$TARBALL_PATH" ]]; then
     if [[ -f "/tmp/${TARBALL}" ]]; then
         TARBALL_PATH="/tmp/${TARBALL}"
+    elif [[ -f "/tmp/nfguard.tar.gz" ]]; then
+        TARBALL_PATH="/tmp/nfguard.tar.gz"
     elif [[ -f "./${TARBALL}" ]]; then
         TARBALL_PATH="$(pwd)/${TARBALL}"
+    elif [[ -f "./nfguard.tar.gz" ]]; then
+        TARBALL_PATH="$(pwd)/nfguard.tar.gz"
     else
         error "Tarball not found. Searched:"
         error "  - ${SCRIPT_DIR}/${TARBALL}"
         error "  - /tmp/${TARBALL}"
+        error "  - /tmp/nfguard.tar.gz"
         error "  - $(pwd)/${TARBALL}"
         error ""
         error "Download it first:"
