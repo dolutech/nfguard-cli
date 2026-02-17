@@ -95,7 +95,7 @@ All tools are **bundled as pre-compiled binaries** — no manual installation of
 One command — download, install, and you're ready:
 
 ```bash
-curl -sL https://github.com/dolutech/nfguard-cli/releases/download/v0.1.0/nfguard-0.1.0-linux-amd64.tar.gz -o /tmp/nfguard.tar.gz && curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh -o /tmp/install.sh && sudo bash /tmp/install.sh
+curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh | sudo bash
 ```
 
 Then configure your LLM provider and launch:
@@ -107,21 +107,23 @@ nfguard
 
 ### What the installer does
 
-- Downloads and extracts NFGuard to `/opt/nfguard/`
-- Creates a symlink at `/usr/local/bin/nfguard` (available system-wide)
+- Downloads NFGuard v0.1.0 from GitHub Releases
+- Extracts to `/opt/nfguard/` and creates a symlink at `/usr/local/bin/nfguard`
 - Creates config templates at `~/.nfguard/` with secure permissions
+- Cleans up temporary files after installation
 
 ### Manual Installation
 
-If you prefer to install manually:
+If you prefer to inspect the script first:
 
 ```bash
-# Download
-curl -sL https://github.com/dolutech/nfguard-cli/releases/download/v0.1.0/nfguard-0.1.0-linux-amd64.tar.gz -o nfguard.tar.gz
+# Download the installer
 curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh -o install.sh
 
-# Install
-chmod +x install.sh
+# Inspect it (optional)
+less install.sh
+
+# Run it
 sudo bash install.sh
 
 # Configure and launch
@@ -266,7 +268,7 @@ nfguard serve
 ## Uninstall
 
 ```bash
-sudo bash install.sh --uninstall
+curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh | sudo bash -s -- --uninstall
 ```
 
 This removes `/opt/nfguard/` and the symlink but preserves your `~/.nfguard/` configuration.
