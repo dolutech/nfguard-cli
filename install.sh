@@ -157,9 +157,10 @@ rm -f "$TMP_TARBALL"
 chmod +x "${INSTALL_DIR}/nfguard"
 ok "Set executable permissions"
 
-# Make bundled binaries executable
-if [[ -d "${INSTALL_DIR}/nfguard/_bundled/bin" ]]; then
-    chmod +x "${INSTALL_DIR}/nfguard/_bundled/bin/"* 2>/dev/null || true
+# Make bundled binaries executable (PyInstaller onedir layout)
+BUNDLED_BIN="${INSTALL_DIR}/_internal/nfguard/_bundled/bin"
+if [[ -d "$BUNDLED_BIN" ]]; then
+    chmod +x "${BUNDLED_BIN}/"* 2>/dev/null || true
     ok "Set permissions on bundled binaries"
 fi
 
@@ -177,44 +178,46 @@ if [[ ! -d "$NFGUARD_HOME" ]]; then
     info "Creating configuration directory: $NFGUARD_HOME"
     mkdir -p "$NFGUARD_HOME"
 
-    # config.yaml — defaults
+    # config.yaml — defaults (user configures provider via setup wizard)
     cat > "${NFGUARD_HOME}/config.yaml" <<'CONFIGEOF'
 # NFGuard Configuration
 # See: nfguard --help
 
 # Default provider to use (must match a name in providers.yaml)
-default_provider: openrouter
+# Run 'nfguard' to launch the setup wizard and configure your provider.
+default_provider: ""
 
 # Default model for the orchestrator agent
-default_model: anthropic/claude-sonnet-4-20250514
+# Set after running the setup wizard.
+default_model: ""
 
 # Log level: DEBUG, INFO, WARNING, ERROR
 log_level: INFO
 CONFIGEOF
 
-    # providers.yaml — template for user to fill in
+    # providers.yaml — empty template, setup wizard fills it in
     cat > "${NFGUARD_HOME}/providers.yaml" <<'PROVEOF'
 # NFGuard Provider Configuration
 # ================================
-# Add your AI provider API keys here.
+# Run 'nfguard' for the first time to launch the setup wizard,
+# or manually add your AI provider configuration below.
 # This file should have restricted permissions (chmod 600).
 #
-# Example configuration:
+# Supported providers (any OpenAI-compatible API):
 #
 # providers:
-#   openrouter:
-#     base_url: https://openrouter.ai/api/v1
-#     api_key: sk-or-xxxxxxxxxxxxxxxxxxxx
-#     default_model: anthropic/claude-sonnet-4-20250514
+#   my_provider:
+#     base_url: https://api.example.com/v1
+#     api_key: YOUR_API_KEY_HERE
+#     default_model: model-name
 #
-#   openai:
-#     base_url: https://api.openai.com/v1
-#     api_key: sk-xxxxxxxxxxxxxxxxxxxxxxxx
-#     default_model: gpt-4o
-#
-# Uncomment and fill in your provider details below:
+# Examples:
+#   - OpenRouter: base_url: https://openrouter.ai/api/v1
+#   - OpenAI:     base_url: https://api.openai.com/v1
+#   - Ollama:     base_url: http://localhost:11434/v1
+#   - Any OpenAI-compatible endpoint
 
-providers: {}
+providers: []
 PROVEOF
 
     # Secure permissions
