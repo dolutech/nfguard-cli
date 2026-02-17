@@ -99,35 +99,42 @@ nfguard> Run a full recon on example.com
 
 ---
 
-## Installation
+## Quick Install
 
-### 1. Download
-
-Download `nfguard-0.1.0-linux-amd64.tar.gz` and `install.sh` from the [Releases](https://github.com/dolutech/nfguard-cli/releases) page.
-
-### 2. Install
+One command — download, install, and you're ready:
 
 ```bash
-chmod +x install.sh
-sudo bash install.sh
+curl -sL https://github.com/dolutech/nfguard-cli/releases/download/v0.1.0/nfguard-0.1.0-linux-amd64.tar.gz -o /tmp/nfguard.tar.gz && curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh -o /tmp/install.sh && sudo bash /tmp/install.sh
 ```
 
-This will:
-- Extract NFGuard to `/opt/nfguard/`
-- Create a symlink at `/usr/local/bin/nfguard`
-- Create config templates at `~/.nfguard/`
-
-### 3. Configure your LLM provider
+Then configure your LLM provider and launch:
 
 ```bash
 nano ~/.nfguard/providers.yaml
+nfguard
 ```
 
-Add your provider (see [Configuration](#configuration) below).
+### What the installer does
 
-### 4. Launch
+- Downloads and extracts NFGuard to `/opt/nfguard/`
+- Creates a symlink at `/usr/local/bin/nfguard` (available system-wide)
+- Creates config templates at `~/.nfguard/` with secure permissions
+
+### Manual Installation
+
+If you prefer to install manually:
 
 ```bash
+# Download
+curl -sL https://github.com/dolutech/nfguard-cli/releases/download/v0.1.0/nfguard-0.1.0-linux-amd64.tar.gz -o nfguard.tar.gz
+curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh -o install.sh
+
+# Install
+chmod +x install.sh
+sudo bash install.sh
+
+# Configure and launch
+nano ~/.nfguard/providers.yaml
 nfguard
 ```
 
