@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# NFGuard v0.1.0 — Installation Script
+# NFGuard v0.1.1 — Installation Script
 # Usage: curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh | sudo bash
 #
 # Downloads, installs NFGuard to /opt/nfguard/, and creates a symlink at /usr/local/bin/nfguard.
@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-VERSION="0.1.0"
+VERSION="0.1.1"
 TARBALL="nfguard-${VERSION}-linux-amd64.tar.gz"
 DOWNLOAD_URL="https://github.com/dolutech/nfguard-cli/releases/download/v${VERSION}/${TARBALL}"
 INSTALL_DIR="/opt/nfguard"
@@ -94,6 +94,25 @@ fi
 
 info "Detected: Linux $ARCH"
 
+# --- GLIBC version check ---
+# Built on manylinux_2_28 — requires GLIBC >= 2.28
+# Compatible with: Ubuntu 20.04+, Debian 11+, RHEL/CentOS 8+, Fedora 29+,
+#                  Arch Linux, openSUSE Leap 15.3+, Alpine 3.17+ (with gcompat)
+MIN_GLIBC="2.28"
+SYSTEM_GLIBC=$(ldd --version 2>&1 | head -1 | grep -oP '[\d.]+$' || true)
+
+if [[ -z "$SYSTEM_GLIBC" ]]; then
+    warn "Could not detect GLIBC version. Proceeding anyway..."
+else
+    if printf '%s\n' "$MIN_GLIBC" "$SYSTEM_GLIBC" | sort -V | head -1 | grep -q "^${MIN_GLIBC}$"; then
+        info "GLIBC version: $SYSTEM_GLIBC (>= $MIN_GLIBC required)"
+    else
+        error "GLIBC $SYSTEM_GLIBC is too old. NFGuard requires GLIBC >= $MIN_GLIBC."
+        error "Supported distros: Ubuntu 20.04+, Debian 11+, RHEL/CentOS 8+, Fedora 29+, Arch Linux, openSUSE 15.3+"
+        exit 1
+    fi
+fi
+
 # --- Root check ---
 if [[ $EUID -ne 0 ]]; then
     error "This installer requires root privileges."
@@ -113,7 +132,11 @@ fi
 # --- Check for curl ---
 if ! command -v curl &>/dev/null; then
     error "curl is required but not installed."
-    error "Install it with: sudo pacman -S curl  (Arch) / sudo apt install curl  (Debian/Ubuntu)"
+    error "Install it with:"
+    error "  Arch:          sudo pacman -S curl"
+    error "  Debian/Ubuntu: sudo apt install curl"
+    error "  RHEL/Fedora:   sudo dnf install curl"
+    error "  openSUSE:      sudo zypper install curl"
     exit 1
 fi
 
@@ -161,7 +184,21 @@ ok "Set executable permissions"
 BUNDLED_BIN="${INSTALL_DIR}/_internal/nfguard/_bundled/bin"
 if [[ -d "$BUNDLED_BIN" ]]; then
     chmod +x "${BUNDLED_BIN}/"* 2>/dev/null || true
-    ok "Set permissions on bundled binaries"
+    ok "Set permissions on bundled security binaries"
+fi
+
+# Make embedded Python interpreter executable
+EMBEDDED_PYTHON="${INSTALL_DIR}/_internal/nfguard/_bundled/bin/python3"
+if [[ -f "$EMBEDDED_PYTHON" ]]; then
+    chmod +x "$EMBEDDED_PYTHON"
+    ok "Set permissions on embedded Python interpreter"
+fi
+
+# Ensure bundled shared libraries are readable
+BUNDLED_LIB="${INSTALL_DIR}/_internal/nfguard/_bundled/lib"
+if [[ -d "$BUNDLED_LIB" ]]; then
+    chmod 755 "${BUNDLED_LIB}/"*.so* 2>/dev/null || true
+    ok "Set permissions on bundled shared libraries"
 fi
 
 # --- Create symlink ---
