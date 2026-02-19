@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# NFGuard v0.1.1 — Installation Script
+# NFGuard v0.1.2 — Installation Script
 # Usage: curl -sL https://raw.githubusercontent.com/dolutech/nfguard-cli/main/install.sh | sudo bash
 #
 # Downloads, installs NFGuard to /opt/nfguard/, and creates a symlink at /usr/local/bin/nfguard.
@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-VERSION="0.1.1"
+VERSION="0.1.2"
 TARBALL="nfguard-${VERSION}-linux-amd64.tar.gz"
 DOWNLOAD_URL="https://github.com/dolutech/nfguard-cli/releases/download/v${VERSION}/${TARBALL}"
 INSTALL_DIR="/opt/nfguard"

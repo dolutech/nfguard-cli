@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.1-cyan?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.1.2-cyan?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/platform-Linux%20x86__64%20%7C%20WSL-blue?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/release-February%202026-yellow?style=flat-square" alt="Release">
@@ -107,7 +107,7 @@ nfguard
 
 ### What the installer does
 
-- Downloads NFGuard v0.1.1 from GitHub Releases
+- Downloads NFGuard v0.1.2 from GitHub Releases
 - Extracts to `/opt/nfguard/` and creates a symlink at `/usr/local/bin/nfguard`
 - Creates config templates at `~/.nfguard/` with secure permissions
 - Cleans up temporary files after installation
