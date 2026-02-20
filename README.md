@@ -5,12 +5,12 @@
 <h1 align="center">NFGuard — AI-Powered Security CLI</h1>
 
 <p align="center">
-  Multi-agent orchestration with 34+ integrated security tools.<br>
-  Reconnaissance, vulnerability scanning, web testing, and automated reporting — all from your terminal.
+  Multi-agent orchestration with 48+ integrated security tools.<br>
+  Reconnaissance, vulnerability scanning, web testing, threat intelligence, and automated reporting — all from your terminal.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.2-cyan?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.1.3-cyan?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/platform-Linux%20x86__64%20%7C%20WSL-blue?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/release-February%202026-yellow?style=flat-square" alt="Release">
@@ -20,7 +20,7 @@
 
 ## What is NFGuard?
 
-NFGuard is a security CLI that uses a **multi-agent AI architecture** to orchestrate 34+ security tools. You describe what you need in natural language, and the AI orchestrator delegates tasks to specialized agents — each with access to the right tools for the job.
+NFGuard is a security CLI that uses a **multi-agent AI architecture** to orchestrate 48+ security tools. You describe what you need in natural language, and the AI orchestrator delegates tasks to specialized agents — each with access to the right tools for the job.
 
 All tools are **bundled as pre-compiled binaries** — no manual installation of individual tools required.
 
@@ -32,8 +32,8 @@ All tools are **bundled as pre-compiled binaries** — no manual installation of
 
 ## Features
 
-- **Multi-Agent Orchestration** — An orchestrator AI delegates to 4 specialist agents (Recon, Web Testing, Vuln Scanning, Reporting), each with its own tools and system prompt
-- **34+ Bundled Security Tools** — From subdomain enumeration to vulnerability scanning to web fuzzing, all pre-compiled and ready to use
+- **Multi-Agent Orchestration** — An orchestrator AI delegates to 8 specialist agents (Recon, Web Testing, Vuln Scanning, Reporting, Threat Intel, Secret Scanning, Supply Chain, Web Discovery), each with its own tools and system prompt
+- **48+ Bundled Security Tools** — From subdomain enumeration to vulnerability scanning to web fuzzing to threat intelligence, all pre-compiled and ready to use
 - **Interactive REPL** — Rich terminal UI with tab completion, slash commands, conversation history, and real-time streaming
 - **Natural Language Interface** — Just describe what you want; the AI figures out which tools and agents to use
 - **Automated Workflows (Skills)** — One-command workflows: `/full-recon`, `/vuln-check`, `/web-audit`
@@ -57,11 +57,23 @@ All tools are **bundled as pre-compiled binaries** — no manual installation of
 ### Web Crawling & URLs
 `katana` · `gau` · `waybackurls` · `unfurl` · `anew` · `httpx` · `webfetch`
 
+### Web Discovery & Fingerprinting
+`gospider` · `hakrawler` · `gowitness` · `webanalyze` · `jarm-go`
+
 ### Content Discovery & Fuzzing
 `gobuster` · `ffuf` · `feroxbuster`
 
 ### Vulnerability Scanning
 `nuclei` · `dalfox` · `crlfuzz` · `sqlmap` · `arjun` · `interactsh`
+
+### Secret Scanning
+`gitleaks` · `trufflehog`
+
+### Supply Chain Security
+`trivy` · `grype`
+
+### Threat Intelligence
+`epss_lookup` · `kev_check` · `circl_cve` · `nvd_lookup` · `urlhaus_check` · `threatfox_check`
 
 ### Reporting & Notifications
 `reportgen` · `notify`
@@ -76,6 +88,10 @@ All tools are **bundled as pre-compiled binaries** — no manual installation of
 | **WebTestingAgent** | Web app security (SQLi, XSS, fuzzing) | 12 tools |
 | **VulnScanningAgent** | CVE scanning, severity prioritization | 3 tools |
 | **ReportingAgent** | PDF/DOCX report generation | 1 tool |
+| **ThreatIntelAgent** | CVE enrichment, IOC checks, risk prioritization | 6 tools |
+| **SecretScanningAgent** | Secret/credential detection in repos and filesystems | 2 tools |
+| **SupplyChainAgent** | Container/filesystem vulnerability scanning (SCA) | 2 tools |
+| **WebDiscoveryAgent** | Spidering, screenshotting, tech fingerprinting, TLS | 5 tools |
 
 ---
 
@@ -107,7 +123,7 @@ nfguard
 
 ### What the installer does
 
-- Downloads NFGuard v0.1.2 from GitHub Releases
+- Downloads NFGuard v0.1.3 from GitHub Releases
 - Extracts to `/opt/nfguard/` and creates a symlink at `/usr/local/bin/nfguard`
 - Creates config templates at `~/.nfguard/` with secure permissions
 - Cleans up temporary files after installation
@@ -225,6 +241,8 @@ nfguard> Find all subdomains of example.com and check for open ports
 nfguard> Scan target.com for vulnerabilities
 nfguard> Test the login form for SQL injection
 nfguard> Generate a PDF report of our findings
+nfguard> Check if CVE-2024-1234 is in the KEV catalog and get its EPSS score
+nfguard> Scan this Docker image for known vulnerabilities
 ```
 
 ### Built-in Skills
@@ -296,19 +314,29 @@ rm -rf ~/.nfguard/
                     ┌──────────▼───────────┐
                     │  Orchestrator Agent   │
                     │  LLM ↔ tool_calls    │
-                    └──┬────┬────┬────┬────┘
-                       │    │    │    │
-            ┌──────────▼┐ ┌▼────▼┐ ┌▼──────────┐ ┌▼──────────┐
-            │ReconAgent │ │Web   │ │VulnScanner │ │Reporting  │
-            │18 tools   │ │Test  │ │3 tools     │ │1 tool     │
-            └───────────┘ │12    │ └────────────┘ └───────────┘
-                          │tools │
-                          └──────┘
+                    └──┬──┬──┬──┬──┬──┬──┬──┬──┘
+                       │  │  │  │  │  │  │  │
+          ┌────────────▼┐ │  │  │  │  │  │ ┌▼────────────┐
+          │ReconAgent   │ │  │  │  │  │  │ │Reporting    │
+          │18 tools     │ │  │  │  │  │  │ │1 tool       │
+          └─────────────┘ │  │  │  │  │  │ └─────────────┘
+            ┌─────────────▼┐ │  │  │  │ ┌▼─────────────┐
+            │WebTesting    │ │  │  │  │ │SupplyChain   │
+            │12 tools      │ │  │  │  │ │2 tools       │
+            └──────────────┘ │  │  │  │ └──────────────┘
+              ┌──────────────▼┐ │  │ ┌▼──────────────┐
+              │VulnScanning   │ │  │ │SecretScanning │
+              │3 tools        │ │  │ │2 tools        │
+              └───────────────┘ │  │ └───────────────┘
+                ┌───────────────▼┐┌▼───────────────┐
+                │ThreatIntel     ││WebDiscovery    │
+                │6 tools         ││5 tools         │
+                └────────────────┘└────────────────┘
                                │
                     ┌──────────▼───────────┐
                     │  Security Binaries   │
                     │  nuclei, naabu, ffuf │
-                    │  subfinder, sqlmap...│
+                    │  subfinder, trivy... │
                     └──────────────────────┘
 ```
 
